@@ -19,8 +19,14 @@ def inverse_sigmoid(x):
     return torch.log(x/(1-x))
 
 def PILtoTorch(pil_image, resolution):
-    resized_image_PIL = pil_image.resize(resolution)
-    resized_image = torch.from_numpy(np.array(resized_image_PIL)) / 255.0
+    if pil_image.mode == 'I;16':
+        pil_image = np.array(pil_image)
+        pil_image = pil_image.astype(np.float32)
+        np_image_normalized = pil_image / 65535.0
+        resized_image = torch.from_numpy(np_image_normalized)
+    else:
+        resized_image_PIL = pil_image.resize(resolution)
+        resized_image = torch.from_numpy(np.array(resized_image_PIL)) / 255.0
     if len(resized_image.shape) == 3:
         return resized_image.permute(2, 0, 1)
     else:
@@ -135,7 +141,7 @@ def safe_state(silent):
     random.seed(0)
     np.random.seed(0)
     torch.manual_seed(0)
-    torch.cuda.set_device(torch.device("cuda:0"))
+    # torch.cuda.set_device(torch.device("cuda:0"))
 
 
 def quaternion_to_matrix(quaternions):

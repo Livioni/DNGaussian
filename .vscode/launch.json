@@ -1,0 +1,63 @@
+{
+    // 使用 IntelliSense 了解相关属性。 
+    // 悬停以查看现有属性的描述。
+    // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python 调试程序: 当前文件",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "train",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "train_dtu.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--dataset", "rubble",
+                "-s", "datasets/rubble",
+                "--model_path", "output/rubble",
+                "-r", "4",
+                "--n_sparse", "3",
+                "--rand_pcd", "--iterations", "10000",
+                "--lambda_dssim", "0.2",
+                "--densify_grad_threshold", "0.0002",
+                "--prune_threshold", "0.01",
+                "--densify_until_iter", "8000",
+                "--percent_dense", "0.01",
+                "--error_tolerance", "0.01",
+                "--shape_pena", "0.005",
+                "--opa_pena", "0.001",
+                "--scale_pena", "0.005"
+            ]
+        },
+        {
+            "name": "get_depth_map_for_llff_dtu",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "dpt/get_depth_map_for_llff_dtu.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--root_path",
+                "datasets/rubble",
+                "--benchmark",
+                "rubble"
+            ]
+        },
+        {
+            "name": "convert",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "convert.py",
+            "console": "integratedTerminal",
+            "args": [
+                "-s",
+                "datasets/rubble"
+            ]
+        }
+    ]
+}

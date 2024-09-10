@@ -23,6 +23,9 @@ args = parser.parse_args()
 if args.benchmark=="DTU":
     model_type = "DPT_Large"
     scenes = ["scan30", "scan34", "scan41", "scan45",  "scan82", "scan103", "scan38", "scan21", "scan40", "scan55", "scan63", "scan31", "scan8", "scan110", "scan114"]
+elif args.benchmark=="rubble":
+    model_type = "DPT_Large"
+    scenes = ["rubble"]
 elif args.benchmark=="LLFF":
     model_type = "DPT_Hybrid"
     scenes = ["fern", "flower", "fortress", "horns", "leaves", "orchids", "room", "trex"]
@@ -52,6 +55,13 @@ for dataset_id in scenes:
         image_paths_1 = sorted(glob.glob(root_path_1))
         image_path_pkg = [image_paths_1]
         downsampling = 4
+        
+    elif args.benchmark=="rubble":
+        root_path_1 = root_path+'images'
+        image_paths_1 = sorted(os.listdir(root_path_1))
+        image_path_pkg = [image_paths_1]
+        downsampling = 4
+        
 
     elif args.benchmark=="LLFF":
         root_path_1 = root_path+dataset_id+'/images/*.JPG'
@@ -72,7 +82,7 @@ for dataset_id in scenes:
         os.makedirs(output_path, exist_ok=True)
     for image_paths in image_path_pkg:
         for k in range(len(image_paths)):
-            filename = image_paths[k]
+            filename = root_path+'images/'+image_paths[k]
             img = cv2.imread(filename)
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             # img = cv2.resize(img, (img.shape[1] // 8, img.shape[0] // 8), interpolation=cv2.INTER_CUBIC)

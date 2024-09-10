@@ -201,6 +201,8 @@ def readColmapSceneInfo(path, images, dataset, eval, rand_pcd, mvs_pcd, llffhold
             train_cam_infos = [c for idx, c in enumerate(cam_infos) if idx in train_idx]
             test_cam_infos = [c for idx, c in enumerate(cam_infos) if idx in test_idx]
             eval_cam_infos = test_cam_infos
+        elif dataset == "rubble":
+            raise NotImplementedError
         else:
             raise NotImplementedError
     else:
@@ -234,6 +236,10 @@ def readColmapSceneInfo(path, images, dataset, eval, rand_pcd, mvs_pcd, llffhold
             pcd_shape = (topk_(xyz, 1, 0)[-1] + topk_(-xyz, 1, 0)[-1])
             num_pts = int(pcd_shape.max() * 50)
             xyz = np.random.random((num_pts, 3)) * pcd_shape * 1.3 - topk_(-xyz, 20, 0)[-1]
+        elif dataset == "rubble":
+            pcd_shape = (topk_(xyz, 100, 0)[-1] + topk_(-xyz, 100, 0)[-1])
+            num_pts = 10_00
+            xyz = np.random.random((num_pts, 3)) * pcd_shape * 1.3 - topk_(-xyz, 100, 0)[-1] # - 0.15 * pcd_shape
         elif dataset == "DTU":
             pcd_shape = (topk_(xyz, 100, 0)[-1] + topk_(-xyz, 100, 0)[-1])
             num_pts = 10_00

@@ -4,7 +4,7 @@ __pycache__/
 
 
 *.pyc
-.vscode
+# .vscode
 output*
 build
 diff_rasterization/diff_rast.egg-info
@@ -21,3 +21,5 @@ data/dtu/*
 data/llff/*
 data/nerf_synthetic/*
 !*.gitkeep
+
+datasets/
