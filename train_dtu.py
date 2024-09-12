@@ -58,7 +58,7 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
 
     ema_loss_hard = 0.0
 
-    if args.dataset in ['DTU','rubble','building']:
+    if args.dataset in ['DTU','rubble','building','campus','residence']:
         patch_range = (17, 53)
 
     for iteration in range(first_iter, opt.iterations + 1):        
@@ -82,7 +82,7 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
             pipe.debug = True
 
         bg_mask = None
-        if args.dataset in ['DTU','rubble','building']:
+        if args.dataset in ['DTU','rubble','building','campus','residence']:
             if 'scan110' not in scene.source_path:
                 bg_mask = (gt_image.max(0, keepdim=True).values < 30/255)
             else:
@@ -100,7 +100,7 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
             # Depth loss
             loss_hard = 0
             depth_mono = 255.0 - viewpoint_cam.depth_mono
-            if args.dataset in ['DTU','rubble','building']:
+            if args.dataset in ['DTU','rubble','building','campus','residence']:
                 depth_mono[bg_mask] = depth_mono[~bg_mask].mean()
                 depth[bg_mask] = depth[~bg_mask].mean().detach()
 
@@ -133,7 +133,7 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
             # Depth loss
             loss_soft = 0
             depth_mono = 255.0 - viewpoint_cam.depth_mono
-            if args.dataset in ['DTU','rubble','building']:
+            if args.dataset in ['DTU','rubble','building','campus','residence']:
                 depth_mono[bg_mask] = depth_mono[~bg_mask].mean()
                 depth[bg_mask] = depth[~bg_mask].mean().detach()
 
@@ -215,7 +215,7 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
                 if iteration > opt.densify_from_iter and iteration % opt.densification_interval == 0:  
                     size_threshold = max_dist = None
 
-                    if args.dataset in ['DTU','rubble','building']:
+                    if args.dataset in ['DTU','rubble','building','campus','residence']:
                         if 'scan110' not in scene.source_path:
                             color = render(viewpoint_cam, gaussians, pipe, background)["color"]
                             black_mask = color.max(-1, keepdim=True).values < 20/255

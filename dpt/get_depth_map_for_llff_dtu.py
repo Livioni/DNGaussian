@@ -29,6 +29,12 @@ elif args.benchmark=="rubble":
 elif args.benchmark=="building":
     model_type = "DPT_Large"
     scenes = ["building"]
+elif args.benchmark=="campus":
+    model_type = "DPT_Large"
+    scenes = ["campus"]
+elif args.benchmark=="residence":
+    model_type = "DPT_Large"
+    scenes = ["residence"]
 elif args.benchmark=="LLFF":
     model_type = "DPT_Hybrid"
     scenes = ["fern", "flower", "fortress", "horns", "leaves", "orchids", "room", "trex"]
@@ -65,7 +71,7 @@ for dataset_id in scenes:
         image_path_pkg = [image_paths_1]
         downsampling = 4
         
-    elif args.benchmark=="building":
+    elif args.benchmark in ["building","campus","residence"]:
         root_path_1 = root_path+'images'
         image_paths_1 = sorted(os.listdir(root_path_1))
         image_path_pkg = [image_paths_1]

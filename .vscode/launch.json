@@ -59,13 +59,16 @@
             "request": "launch",
             "program": "train_dtu.py",
             "console": "integratedTerminal",
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "1",
+            },
             "args": [
                 "--dataset",
-                "building",
+                "residence",
                 "-s",
-                "datasets/building",
+                "datasets/residence",
                 "--model_path",
-                "output/building",
+                "output/residence",
                 "-r",
                 "4",
                 "--eval",
@@ -101,9 +104,9 @@
                 "--scale_pena",
                 "0.001",
                 "--train_image_path",
-                "datasets/building",
+                "datasets/residence",
                 "--eval_image_path",
-                "/media/work/work-jx/phs/InstantVast/datasets/building/images/val/rgbs"
+                "/media/work/work-jx/phs/InstantVast/datasets/residence/images/val/rgbs"
             ]
         },
         {
@@ -114,9 +117,9 @@
             "console": "integratedTerminal",
             "args": [
                 "--root_path",
-                "datasets/building",
+                "datasets/campus",
                 "--benchmark",
-                "building"
+                "campus"
             ]
         },
         {

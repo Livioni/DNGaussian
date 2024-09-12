@@ -335,7 +335,7 @@ def readColmapSceneInfoV1(path, images, dataset, eval, rand_pcd, mvs_pcd, llffho
             train_cam_infos = [c for idx, c in enumerate(cam_infos) if idx in train_idx]
             test_cam_infos = [c for idx, c in enumerate(cam_infos) if idx in test_idx]
             eval_cam_infos = test_cam_infos
-        elif dataset == "rubble" or dataset == "building":                
+        elif dataset in ["rubble","building","campus","residence"]:                
             train_cam_infos = [c for c in cam_infos if c.image_name in train_image_list]
             test_cam_infos = [c for c in cam_infos if c.image_name in val_image_list]
             eval_cam_infos = test_cam_infos
