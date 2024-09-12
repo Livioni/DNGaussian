@@ -203,6 +203,142 @@ def readColmapSceneInfo(path, images, dataset, eval, rand_pcd, mvs_pcd, llffhold
             eval_cam_infos = test_cam_infos
         elif dataset == "rubble":
             raise NotImplementedError
+    else:
+        train_cam_infos = cam_infos
+        test_cam_infos = []
+        eval_cam_infos = []
+
+    print('train', [info.image_path for info in train_cam_infos])
+    print('eval', [info.image_path for info in eval_cam_infos])
+
+    nerf_normalization = getNerfppNorm(train_cam_infos)
+
+    if rand_pcd and mvs_pcd:
+        print("[warning] Both --rand_pcd and --mvs_pcd are detected, use --mvs_pcd.")
+        rand_pcd = False
+
+    if rand_pcd:
+        print('Init random point cloud.')
+        ply_path = os.path.join(path, "sparse/0/points3D_random.ply")
+        bin_path = os.path.join(path, "sparse/0/points3D.bin")
+        txt_path = os.path.join(path, "sparse/0/points3D.txt")
+
+        try:
+            xyz, rgb, _ = read_points3D_binary(bin_path)
+        except:
+            xyz, rgb, _ = read_points3D_text(txt_path)
+        print(xyz.max(0), xyz.min(0))
+
+
+        if dataset == "LLFF":
+            pcd_shape = (topk_(xyz, 1, 0)[-1] + topk_(-xyz, 1, 0)[-1])
+            num_pts = int(pcd_shape.max() * 50)
+            xyz = np.random.random((num_pts, 3)) * pcd_shape * 1.3 - topk_(-xyz, 20, 0)[-1]
+        elif dataset == "rubble":
+            pcd_shape = (topk_(xyz, 100, 0)[-1] + topk_(-xyz, 100, 0)[-1])
+            num_pts = 10_00
+            xyz = np.random.random((num_pts, 3)) * pcd_shape * 1.3 - topk_(-xyz, 100, 0)[-1] # - 0.15 * pcd_shape
+        elif dataset == "DTU":
+            pcd_shape = (topk_(xyz, 100, 0)[-1] + topk_(-xyz, 100, 0)[-1])
+            num_pts = 10_00
+            xyz = np.random.random((num_pts, 3)) * pcd_shape * 1.3 - topk_(-xyz, 100, 0)[-1] # - 0.15 * pcd_shape
+        print(pcd_shape)
+        print(f"Generating random point cloud ({num_pts})...")
+
+        shs = np.random.random((num_pts, 3)) / 255.0
+        pcd = BasicPointCloud(points=xyz, colors=SH2RGB(shs), normals=np.zeros((num_pts, 3)))
+        storePly(ply_path, xyz, SH2RGB(shs) * 255)
+    elif mvs_pcd:
+        ply_path = os.path.join(path, "3_views/dense/fused.ply")
+        assert os.path.exists(ply_path)
+        pcd = fetchPly(ply_path)
+    else:
+        ply_path = os.path.join(path, "sparse/0/points3D.ply")
+        bin_path = os.path.join(path, "sparse/0/points3D.bin")
+        txt_path = os.path.join(path, "sparse/0/points3D.txt")
+        if not os.path.exists(ply_path):
+            print("Converting point3d.bin to .ply, will happen only the first time you open the scene.")
+            try:
+                xyz, rgb, _ = read_points3D_binary(bin_path)
+            except:
+                xyz, rgb, _ = read_points3D_text(txt_path)
+            storePly(ply_path, xyz, rgb)
+        try:
+            pcd = fetchPly(ply_path)
+        except:
+            pcd = None
+
+    scene_info = SceneInfo(point_cloud=pcd,
+                           train_cameras=train_cam_infos,
+                           test_cameras=test_cam_infos,
+                           eval_cameras=eval_cam_infos,
+                           nerf_normalization=nerf_normalization,
+                           ply_path=ply_path)
+    return scene_info
+
+def readColmapSceneInfoV1(path, images, dataset, eval, rand_pcd, mvs_pcd, llffhold=8, N_sparse=-1, 
+                          train_path = None, test_path=None):
+    
+    train_image_list = []
+    val_image_list = []
+    train_image_list_path = os.path.join(train_path, "00000.txt")
+    with open(train_image_list_path, 'r') as f:
+        for line in f:
+            train_image_list.append(line.strip().split(".")[0])
+            
+    for name in os.listdir(test_path):
+        val_image_list.append(name.split(".")[0])
+        
+    all_image_list = train_image_list + val_image_list
+    
+    try:
+        cameras_extrinsic_file = os.path.join(path, "sparse/0", "images.bin")
+        cameras_intrinsic_file = os.path.join(path, "sparse/0", "cameras.bin")
+        cam_extrinsics = read_extrinsics_binary(cameras_extrinsic_file, all_image_list)
+        camera_id = [cam_extrinsics[key].camera_id for key in cam_extrinsics]
+        cam_intrinsics = read_intrinsics_binary(cameras_intrinsic_file, camera_id)
+    except:
+        cameras_extrinsic_file = os.path.join(path, "sparse/0", "images.txt")
+        cameras_intrinsic_file = os.path.join(path, "sparse/0", "cameras.txt")
+        cam_extrinsics = read_extrinsics_text(cameras_extrinsic_file)
+        cam_intrinsics = read_intrinsics_text(cameras_intrinsic_file)
+    # print(cam_intrinsics)
+
+    reading_dir = "images" if images == None else images
+    cam_infos_unsorted = readColmapCameras(cam_extrinsics=cam_extrinsics, cam_intrinsics=cam_intrinsics, images_folder=os.path.join(train_path, reading_dir))
+    cam_infos = sorted(cam_infos_unsorted.copy(), key = lambda x : x.image_name)
+
+    if eval:
+        print("Dataset Type: ", dataset)
+        if dataset == "LLFF":
+            train_cam_infos = [c for idx, c in enumerate(cam_infos) if idx % llffhold != 0]
+            eval_cam_infos = [c for idx, c in enumerate(cam_infos) if idx % llffhold == 0]
+            if N_sparse > 0:
+                idx = list(range(len(train_cam_infos)))
+                idx_train = np.linspace(0, len(train_cam_infos) - 1, N_sparse)
+                idx_train = [round(i) for i in idx_train]
+                idx_test = [i for i in idx if i not in idx_train] 
+                train_cam_infos = [c for idx, c in enumerate(train_cam_infos) if idx in idx_train]
+                test_cam_infos = [c for idx, c in enumerate(cam_infos) if idx in idx_test] + eval_cam_infos
+
+                # print('train', idx_train)
+                # print('test', train_cam_infos)
+            # else:
+            #     train_cam_infos = [c for idx, c in enumerate(cam_infos) if idx % llffhold != 0]
+            #     test_cam_infos = [c for idx, c in enumerate(cam_infos) if idx % llffhold == 0]
+        elif dataset == "DTU":
+            train_idx = [25, 22, 28, 40, 44, 48, 0, 8, 13]
+            exclude_idx = [3, 4, 5, 6, 7, 16, 17, 18, 19, 20, 21, 36, 37, 38, 39]
+            test_idx = [i for i in np.arange(49) if i not in train_idx + exclude_idx]
+            if N_sparse > 0:
+                train_idx = train_idx[:N_sparse]
+            train_cam_infos = [c for idx, c in enumerate(cam_infos) if idx in train_idx]
+            test_cam_infos = [c for idx, c in enumerate(cam_infos) if idx in test_idx]
+            eval_cam_infos = test_cam_infos
+        elif dataset == "rubble" or dataset == "building":                
+            train_cam_infos = [c for c in cam_infos if c.image_name in train_image_list]
+            test_cam_infos = [c for c in cam_infos if c.image_name in val_image_list]
+            eval_cam_infos = test_cam_infos
         else:
             raise NotImplementedError
     else:
@@ -506,6 +642,7 @@ def CreateDTUSpiral(basedir):
 
 sceneLoadTypeCallbacks = {
     "Colmap": readColmapSceneInfo,
+    "ColmapV1": readColmapSceneInfoV1,
     "Blender" : readNerfSyntheticInfo,
     # "LLFF" : readLLFFInfo,
     "Spiral" : CreateLLFFSpiral,

@@ -2,9 +2,9 @@ import os
 import shutil
 
 # 设置文件路径
-txt_file = 'datasets/rubble/00000.txt'  # txt文件路径
-source_folder = '/media/work/work-jx/phs/InstantVast/datasets/rubble/images/train/rgbs'  # 包含.pt文件的源文件夹路径
-destination_folder = 'datasets/rubble/images'  # 目标文件夹路径
+txt_file = 'datasets/residence/00000.txt'  # txt文件路径
+source_folder = '/media/work/work-jx/phs/InstantVast/datasets/residence/images/train/rgbs'  # 包含.pt文件的源文件夹路径
+destination_folder = 'datasets/residence/input'  # 目标文件夹路径
 
 # 确保目标文件夹存在
 os.makedirs(destination_folder, exist_ok=True)

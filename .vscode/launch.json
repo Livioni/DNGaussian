@@ -12,27 +12,98 @@
             "console": "integratedTerminal"
         },
         {
+            "name": "spiral",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "spiral.py",
+            "console": "integratedTerminal",
+            "args": [
+                "-s", "datasets/rubble",
+                "--model_path", "output/rubble",
+            ]
+        },
+        {
+            "name": "metric",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "metrics.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--model_path", "output/building",
+            ]
+        },
+        {
+            "name": "Render",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "render.py",
+            "console": "integratedTerminal",
+            "args": [
+                "-s",
+                "datasets/building",
+                "--model_path",
+                "output/building",
+                "--train_image_path",
+                "datasets/building",
+                "--eval_image_path",
+                "/media/work/work-jx/phs/InstantVast/datasets/building/images/val/rgbs",
+                "-r",
+                "4",
+                "--skip_train",
+                "--skip_test"
+            ]
+        },
+        {
             "name": "train",
             "type": "debugpy",
             "request": "launch",
             "program": "train_dtu.py",
             "console": "integratedTerminal",
             "args": [
-                "--dataset", "rubble",
-                "-s", "datasets/rubble",
-                "--model_path", "output/rubble",
-                "-r", "4",
-                "--n_sparse", "3",
-                "--rand_pcd", "--iterations", "10000",
-                "--lambda_dssim", "0.2",
-                "--densify_grad_threshold", "0.0002",
-                "--prune_threshold", "0.01",
-                "--densify_until_iter", "8000",
-                "--percent_dense", "0.01",
-                "--error_tolerance", "0.01",
-                "--shape_pena", "0.005",
-                "--opa_pena", "0.001",
-                "--scale_pena", "0.005"
+                "--dataset",
+                "building",
+                "-s",
+                "datasets/building",
+                "--model_path",
+                "output/building",
+                "-r",
+                "4",
+                "--eval",
+                "--n_sparse",
+                "3",
+                // "--rand_pcd",
+                "--iterations",
+                "10000",
+                "--lambda_dssim",
+                "0.2",
+                "--position_lr_init",
+                "0.00016",
+                "--position_lr_final",
+                "0.0000016",
+                "--position_lr_max_steps",
+                "10000",
+                "--position_lr_start",
+                "0",
+                "--densify_grad_threshold",
+                "0.0002",
+                "--prune_threshold",
+                "0.01",
+                "--densify_until_iter",
+                "8000",
+                "--percent_dense",
+                "0.1",
+                "--error_tolerance",
+                "0.01",
+                "--shape_pena",
+                "0.001",
+                "--opa_pena",
+                "0.001",
+                "--scale_pena",
+                "0.001",
+                "--train_image_path",
+                "datasets/building",
+                "--eval_image_path",
+                "/media/work/work-jx/phs/InstantVast/datasets/building/images/val/rgbs"
             ]
         },
         {
@@ -43,9 +114,9 @@
             "console": "integratedTerminal",
             "args": [
                 "--root_path",
-                "datasets/rubble",
+                "datasets/building",
                 "--benchmark",
-                "rubble"
+                "building"
             ]
         },
         {
@@ -56,7 +127,7 @@
             "console": "integratedTerminal",
             "args": [
                 "-s",
-                "datasets/rubble"
+                "datasets/campus"
             ]
         }
     ]

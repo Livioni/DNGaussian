@@ -58,6 +58,8 @@ class ModelParams(ParamGroup):
         self.rand_pcd = False
         self.mvs_pcd = False
         self.n_sparse = -1
+        self._train_image_path = ""
+        self._eval_image_path = ""
         super().__init__(parser, "Loading Parameters", sentinel)
 
     def extract(self, args):
@@ -100,9 +102,9 @@ class OptimizationParams(ParamGroup):
 
         self.lambda_dssim = 0.2
         self.densification_interval = 100
-        self.opacity_reset_interval = 3000
+        self.opacity_reset_interval = 2000
         self.densify_from_iter = 500
-        self.densify_until_iter = 15_000
+        self.densify_until_iter = 8_000
         self.densify_grad_threshold = 0.0001
         self.prune_threshold = 0.01
         # self.densify_grad_threshold = 0.002

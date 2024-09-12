@@ -177,7 +177,7 @@ def read_intrinsics_text(path):
                                             params=params)
     return cameras
 
-def read_extrinsics_binary(path_to_model_file):
+def read_extrinsics_binary(path_to_model_file, image_lists = None):
     """
     see: src/base/reconstruction.cc
         void Reconstruction::ReadImagesBinary(const std::string& path)
@@ -202,6 +202,8 @@ def read_extrinsics_binary(path_to_model_file):
                                            format_char_sequence="Q")[0]
             x_y_id_s = read_next_bytes(fid, num_bytes=24*num_points2D,
                                        format_char_sequence="ddq"*num_points2D)
+            if image_lists is not None and image_name[:-4] not in image_lists:
+                continue
             xys = np.column_stack([tuple(map(float, x_y_id_s[0::3])),
                                    tuple(map(float, x_y_id_s[1::3]))])
             point3D_ids = np.array(tuple(map(int, x_y_id_s[2::3])))
@@ -212,7 +214,7 @@ def read_extrinsics_binary(path_to_model_file):
     return images
 
 
-def read_intrinsics_binary(path_to_model_file):
+def read_intrinsics_binary(path_to_model_file, image_lists = None):
     """
     see: src/base/reconstruction.cc
         void Reconstruction::WriteCamerasBinary(const std::string& path)
@@ -232,12 +234,14 @@ def read_intrinsics_binary(path_to_model_file):
             num_params = CAMERA_MODEL_IDS[model_id].num_params
             params = read_next_bytes(fid, num_bytes=8*num_params,
                                      format_char_sequence="d"*num_params)
+            if image_lists is not None and camera_id not in image_lists:
+                continue    
             cameras[camera_id] = Camera(id=camera_id,
                                         model=model_name,
                                         width=width,
                                         height=height,
                                         params=np.array(params))
-        assert len(cameras) == num_cameras
+        # assert len(cameras) == num_cameras
     return cameras
 
 

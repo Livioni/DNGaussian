@@ -26,6 +26,9 @@ if args.benchmark=="DTU":
 elif args.benchmark=="rubble":
     model_type = "DPT_Large"
     scenes = ["rubble"]
+elif args.benchmark=="building":
+    model_type = "DPT_Large"
+    scenes = ["building"]
 elif args.benchmark=="LLFF":
     model_type = "DPT_Hybrid"
     scenes = ["fern", "flower", "fortress", "horns", "leaves", "orchids", "room", "trex"]
@@ -62,7 +65,12 @@ for dataset_id in scenes:
         image_path_pkg = [image_paths_1]
         downsampling = 4
         
-
+    elif args.benchmark=="building":
+        root_path_1 = root_path+'images'
+        image_paths_1 = sorted(os.listdir(root_path_1))
+        image_path_pkg = [image_paths_1]
+        downsampling = 4
+        
     elif args.benchmark=="LLFF":
         root_path_1 = root_path+dataset_id+'/images/*.JPG'
         root_path_2 = root_path+dataset_id+'/images/*.jpg'
@@ -94,7 +102,7 @@ for dataset_id in scenes:
                 prediction = midas(input_batch)
                 prediction = torch.nn.functional.interpolate(
                     prediction.unsqueeze(1),
-                    size=(h//downsampling, w//downsampling),
+                    size=(858, 1147),
                     mode="bicubic",
                     align_corners=False,
                 ).squeeze()

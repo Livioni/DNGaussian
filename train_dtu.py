@@ -58,7 +58,7 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
 
     ema_loss_hard = 0.0
 
-    if args.dataset == 'DTU':
+    if args.dataset in ['DTU','rubble','building']:
         patch_range = (17, 53)
 
     for iteration in range(first_iter, opt.iterations + 1):        
@@ -82,7 +82,7 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
             pipe.debug = True
 
         bg_mask = None
-        if args.dataset == 'DTU':
+        if args.dataset in ['DTU','rubble','building']:
             if 'scan110' not in scene.source_path:
                 bg_mask = (gt_image.max(0, keepdim=True).values < 30/255)
             else:
@@ -100,7 +100,7 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
             # Depth loss
             loss_hard = 0
             depth_mono = 255.0 - viewpoint_cam.depth_mono
-            if args.dataset == 'DTU':
+            if args.dataset in ['DTU','rubble','building']:
                 depth_mono[bg_mask] = depth_mono[~bg_mask].mean()
                 depth[bg_mask] = depth[~bg_mask].mean().detach()
 
@@ -133,7 +133,7 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
             # Depth loss
             loss_soft = 0
             depth_mono = 255.0 - viewpoint_cam.depth_mono
-            if args.dataset == 'DTU':
+            if args.dataset in ['DTU','rubble','building']:
                 depth_mono[bg_mask] = depth_mono[~bg_mask].mean()
                 depth[bg_mask] = depth[~bg_mask].mean().detach()
 
@@ -215,7 +215,7 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
                 if iteration > opt.densify_from_iter and iteration % opt.densification_interval == 0:  
                     size_threshold = max_dist = None
 
-                    if args.dataset == "DTU":
+                    if args.dataset in ['DTU','rubble','building']:
                         if 'scan110' not in scene.source_path:
                             color = render(viewpoint_cam, gaussians, pipe, background)["color"]
                             black_mask = color.max(-1, keepdim=True).values < 20/255
@@ -351,7 +351,7 @@ if __name__ == "__main__":
     parser.add_argument('--debug_from', type=int, default=-1)
     parser.add_argument('--detect_anomaly', action='store_true', default=False)
     parser.add_argument("--test_iterations", nargs="+", type=int, default=list(range(1, 10001, 444)))
-    parser.add_argument("--save_iterations", nargs="+", type=int, default=[1_000,2_000,5_000,10_000])
+    parser.add_argument("--save_iterations", nargs="+", type=int, default=[10_000])
     parser.add_argument("--quiet", action="store_true")
     parser.add_argument("--checkpoint_iterations", nargs="+", type=int, default=[])
     parser.add_argument("--start_checkpoint", type=str, default = None)

@@ -23,7 +23,8 @@ def loadCam(args, id, cam_info, resolution_scale):
     orig_w, orig_h = cam_info.image.size
 
     if args.resolution in [1, 2, 4, 8]:
-        resolution = round(orig_w/(resolution_scale * args.resolution)), round(orig_h/(resolution_scale * args.resolution))
+        # resolution = round(orig_w/(resolution_scale * args.resolution)), round(orig_h/(resolution_scale * args.resolution))
+        resolution = (1147,858)
     else:  # should be a type that converts to float
         if args.resolution == -1:
             if orig_w > 6400:
@@ -39,7 +40,8 @@ def loadCam(args, id, cam_info, resolution_scale):
             global_down = orig_w / args.resolution
 
         scale = float(global_down) * float(resolution_scale)
-        resolution = (int(orig_w / scale), int(orig_h / scale))
+        # resolution = (int(orig_w / scale), int(orig_h / scale))
+        resolution = (1147,858)
 
     resized_image_rgb = PILtoTorch(cam_info.image, resolution)
     resized_depth_mono = PILtoTorch(cam_info.depth_mono, resolution)
